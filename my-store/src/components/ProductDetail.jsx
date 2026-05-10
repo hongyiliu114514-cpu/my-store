@@ -52,7 +52,7 @@ function ProductDetail({ product, onClose, onAddToCart }) {
 
           <button
             onClick={() => onAddToCart(product)}
-            className="w-full bg-gray-900 text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition-colors"
+            className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition-colors"
           >
             加入购物车
           </button>

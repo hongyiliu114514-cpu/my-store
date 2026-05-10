@@ -99,7 +99,7 @@ function App() {
     });
   };
 
-    const removeFromCart = (productId) => {
+  const removeFromCart = (productId) => {
     setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
   };
 
@@ -119,10 +119,19 @@ function App() {
     );
   };
 
+  const setItemQuantity = (productId, quantity) => {
+    const qty = Math.max(1, Math.min(99, parseInt(quantity, 10) || 1));
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.product.id === productId ? { ...item, quantity: qty } : item
+      )
+    );
+  };
+
   // 购物车数据持久化 —— 当 cartItems 变化时自动保存到 localStorage
-useEffect(() => {
-  localStorage.setItem('myStoreCart', JSON.stringify(cartItems));
-}, [cartItems]);
+  useEffect(() => {
+    localStorage.setItem('myStoreCart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const scrollToProducts = () => {
     productsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -145,10 +154,15 @@ useEffect(() => {
         totalCount={totalCount}
         totalPrice={totalPrice}
         onChangeQuantity={changeQuantity}
+        onSetQuantity={setItemQuantity}
         onRemoveItem={removeFromCart}
         onClear={clearCart}
       />
-      <Hero onScrollToProducts={scrollToProducts} />
+      <Hero
+        onScrollToProducts={scrollToProducts}
+        featuredProducts={products.slice(0, 3)}
+        onAddToCart={addToCart}
+      />
       <ProductList products={products} onAddToCart={addToCart} sectionRef={productsSectionRef} />
       <Footer />
     </div>

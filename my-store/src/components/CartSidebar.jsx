@@ -1,4 +1,4 @@
-function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onChangeQuantity, onRemoveItem, onClear }) {
+function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onChangeQuantity, onSetQuantity, onRemoveItem, onClear }) {
   return (
     <>
       {/* 遮罩 */}
@@ -50,16 +50,21 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
                   <p className="text-sm text-gray-500">
                     ¥{item.product.price}
                   </p>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-1 mt-1">
                     <button
                       onClick={() => onChangeQuantity(item.product.id, -1)}
                       className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 text-sm"
                     >
                       −
                     </button>
-                    <span className="text-sm w-6 text-center">
-                      {item.quantity}
-                    </span>
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) => onSetQuantity(item.product.id, e.target.value)}
+                      className="w-12 h-6 text-center text-sm border border-gray-300 rounded focus:outline-none focus:border-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      min="1"
+                      max="99"
+                    />
                     <button
                       onClick={() => onChangeQuantity(item.product.id, 1)}
                       className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 text-sm"
@@ -74,7 +79,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
                   </p>
                   <button
                     onClick={() => onRemoveItem(item.product.id)}
-                    className="text-xs text-red-400 hover:text-red-600 mt-1"
+                    className="text-xs text-red-500 hover:text-red-700 mt-1 font-medium"
                   >
                     删除
                   </button>
@@ -91,12 +96,12 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
               <span>合计</span>
               <span>¥{totalPrice}</span>
             </div>
-            <button className="w-full bg-gray-900 text-white py-2.5 rounded hover:bg-gray-800 transition-colors text-sm">
+            <button className="w-full bg-blue-600 text-white py-2.5 rounded hover:bg-blue-700 transition-colors text-sm">
               去结算
             </button>
             <button
               onClick={onClear}
-              className="w-full border border-gray-300 text-gray-600 py-2 rounded hover:bg-gray-50 transition-colors text-sm"
+              className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition-colors text-sm"
             >
               清空购物车
             </button>

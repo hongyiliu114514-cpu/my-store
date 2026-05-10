@@ -1,30 +1,182 @@
-import momBg from '../assets/mom.jpg';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import ProductDetail from './ProductDetail';
 
-function Hero({ onScrollToProducts }) {
+const slides = [
+  {
+    type: 'brand',
+    image: 'https://placehold.co/1920x1080/1e293b/f8fafc?text=New+Collection',
+    title: '新品上市',
+    subtitle: '探索我们的独家系列',
+    product: null,
+  },
+];
+
+function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
+  const [current, setCurrent] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const [detailProduct, setDetailProduct] = useState(null);
+  const [animating, setAnimating] = useState(false);
+  const touchStartX = useRef(null);
+
+  const allSlides = [...slides];
+  if (featuredProducts && featuredProducts.length > 0) {
+    featuredProducts.forEach((p) => {
+      allSlides.push({
+        type: 'product',
+        image: p.image,
+        title: p.name,
+        subtitle: `¥${p.price}`,
+        product: p,
+      });
+    });
+  }
+
+  const totalSlides = allSlides.length;
+
+  const goTo = useCallback((index) => {
+    if (animating) return;
+    setAnimating(true);
+    setCurrent((index + totalSlides) % totalSlides);
+  }, [totalSlides, animating]);
+
+  const prev = () => goTo(current - 1);
+  const next = () => goTo(current + 1);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? next() : prev();
+    }
+    touchStartX.current = null;
+  };
+
+  // 自动播放：10s 切换，鼠标悬停时暂停
+  useEffect(() => {
+    if (totalSlides <= 1 || isHovering) return;
+    const timer = setInterval(() => {
+      setAnimating(true);
+      setCurrent((prev) => (prev + 1) % totalSlides);
+    }, 10000);
+    return () => clearInterval(timer);
+  }, [totalSlides, isHovering]);
+
+  const slide = allSlides[current];
+
   return (
-    <section className="relative bg-gray-900 text-white">
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 z-10" />
-      <div
-        className="h-[70vh] min-h-[500px] bg-cover bg-center"
-        style={{ backgroundImage: `url(${momBg})` }}
-      />
-      <div className="absolute inset-0 z-20 flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-            母亲节快乐
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-lg">
-            看看花吧（'w')，送妈妈一束花，送妈妈一份心意，送妈妈一份温暖，送妈妈一份爱意。
-          </p>
-          <button
-            onClick={onScrollToProducts}
-            className="bg-white text-gray-900 px-8 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors shadow-lg"
-          >
-            立即购买
-          </button>
+    <>
+      <section
+        className="relative bg-gray-900 text-white overflow-hidden"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* 渐变遮罩 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 z-10 pointer-events-none" />
+
+        {/* 轮播轨道 */}
+        <div
+          className={`flex h-[70vh] min-h-[500px] transition-transform duration-700 ease-in-out ${
+            isHovering ? 'scale-105' : 'scale-100'
+          }`}
+          style={{
+            transform: `translateX(-${current * 100}%)`,
+            transitionDuration: animating ? '700ms' : '0ms',
+          }}
+          onTransitionEnd={() => setAnimating(false)}
+        >
+          {allSlides.map((s, i) => (
+            <div
+              key={i}
+              className={`w-full flex-shrink-0 bg-cover bg-center ${
+                s.type === 'product' ? 'cursor-pointer' : ''
+              }`}
+              style={{ backgroundImage: `url(${s.image})` }}
+              onClick={() => {
+                if (s.type === 'product' && s.product) {
+                  setDetailProduct(s.product);
+                }
+              }}
+            />
+          ))}
         </div>
-      </div>
-    </section>
+
+        {/* 文字内容 */}
+        <div className="absolute inset-0 z-20 flex items-center pointer-events-none">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+              {slide.title}
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-lg">
+              {slide.subtitle}
+            </p>
+            <button
+              onClick={onScrollToProducts}
+              className="pointer-events-auto bg-blue-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-blue-700 transition-colors shadow-lg"
+            >
+              立即购买
+            </button>
+          </div>
+        </div>
+
+        {/* 指示器圆点 */}
+        {totalSlides > 1 && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+            {allSlides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`w-2.5 h-2.5 rounded-full transition-all ${
+                  i === current
+                    ? 'bg-white scale-125'
+                    : 'bg-white/50 hover:bg-white/80'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* 左箭头 */}
+        {totalSlides > 1 && (
+          <button
+            onClick={prev}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all"
+            aria-label="上一张"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+
+        {/* 右箭头 */}
+        {totalSlides > 1 && (
+          <button
+            onClick={next}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all"
+            aria-label="下一张"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
+      </section>
+
+      {/* 产品详情弹窗 */}
+      {detailProduct && (
+        <ProductDetail
+          product={detailProduct}
+          onClose={() => setDetailProduct(null)}
+          onAddToCart={onAddToCart}
+        />
+      )}
+    </>
   );
 }
 
