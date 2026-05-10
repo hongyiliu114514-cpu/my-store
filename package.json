@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "dev": "cd my-store && npm run dev",
+    "build": "cd my-store && npm run build",
+    "preview": "cd my-store && npm run preview"
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
     "tailwindcss": "^4.3.0"
