@@ -1,5 +1,25 @@
+import { useRef } from 'react';
+import StarRating from './StarRating';
+
+function getRating(productId) {
+  const ratings = [4.5, 4.0, 5.0, 4.8, 4.2, 4.6];
+  const counts = [128, 56, 203, 91, 37, 74];
+  return {
+    rating: ratings[(productId - 1) % ratings.length],
+    count: counts[(productId - 1) % counts.length],
+  };
+}
+
 function ProductDetail({ product, onClose, onAddToCart }) {
+  const imgRef = useRef(null);
   if (!product) return null;
+
+  const { rating, count } = getRating(product.id);
+
+  const handleAddToCart = () => {
+    const rect = imgRef.current?.getBoundingClientRect();
+    onAddToCart(product, rect);
+  };
 
   return (
     <div 
@@ -23,6 +43,7 @@ function ProductDetail({ product, onClose, onAddToCart }) {
         {/* 内容区 */}
         <div className="px-6 pb-6">
           <img
+            ref={imgRef}
             src={product.image}
             alt={product.name}
             className="w-full h-80 object-cover rounded-lg mb-6"
@@ -30,6 +51,13 @@ function ProductDetail({ product, onClose, onAddToCart }) {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {product.name}
           </h2>
+
+          {/* 星级评价 */}
+          <div className="flex items-center gap-2 mb-3">
+            <StarRating rating={rating} size="md" />
+            <span className="text-sm text-gray-400">({count}条评价)</span>
+          </div>
+
           <p className="text-3xl font-bold text-gray-900 mb-4">
             ¥{product.price}
           </p>
@@ -51,8 +79,8 @@ function ProductDetail({ product, onClose, onAddToCart }) {
           </div>
 
           <button
-            onClick={() => onAddToCart(product)}
-            className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition-colors"
+            onClick={handleAddToCart}
+            className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition-colors active:scale-95"
           >
             加入购物车
           </button>

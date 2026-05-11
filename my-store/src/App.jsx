@@ -1,9 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ProductList from './components/ProductList';
 import Footer from './components/Footer';
 import CartSidebar from './components/CartSidebar';
+import WishlistSidebar from './components/WishlistSidebar';
+import FlyingItem from './components/FlyingItem';
+import BackToTop from './components/BackToTop';
+import CountdownBanner from './components/CountdownBanner';
+import AuthModal from './components/AuthModal';
+import useAuth from './hooks/useAuth';
 import sunglassesImg from './assets/sunglasses.jpg';
 
 
@@ -71,6 +77,8 @@ const products = [
 ];
 
 function App() {
+  const { user, signOut } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [cartItems, setCartItems] = useState(() => {
   try {
     const saved = localStorage.getItem('myStoreCart');
@@ -80,12 +88,26 @@ function App() {
   }
 });
   const [cartOpen, setCartOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [wishlistItems, setWishlistItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('myStoreWishlist');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const productsSectionRef = useRef(null);
+  const cartIconRef = useRef(null);
+
+  // 飞入动画状态
+  const [flyingItems, setFlyingItems] = useState([]);
+  let flyingIdCounter = useRef(0);
 
   const totalCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
-  const addToCart = (product) => {
+  const addToCart = useCallback((product, sourceRect) => {
     setCartItems((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
@@ -97,7 +119,41 @@ function App() {
       }
       return [...prev, { product, quantity: 1 }];
     });
-  };
+
+    // 触发飞入动画
+    if (sourceRect && cartIconRef.current) {
+      const cartRect = cartIconRef.current.getBoundingClientRect();
+      const id = ++flyingIdCounter.current;
+      setFlyingItems((prev) => [
+        ...prev,
+        {
+          id,
+          product,
+          startX: sourceRect.left + sourceRect.width / 2,
+          startY: sourceRect.top + sourceRect.height / 2,
+          endX: cartRect.left + cartRect.width / 2,
+          endY: cartRect.top + cartRect.height / 2,
+        },
+      ]);
+      setTimeout(() => {
+        setFlyingItems((prev) => prev.filter((f) => f.id !== id));
+      }, 600);
+    }
+  }, []);
+
+  const toggleWishlist = useCallback((product) => {
+    setWishlistItems((prev) => {
+      const exists = prev.find((item) => item.id === product.id);
+      if (exists) {
+        return prev.filter((item) => item.id !== product.id);
+      }
+      return [...prev, product];
+    });
+  }, []);
+
+  const isInWishlist = useCallback((productId) => {
+    return wishlistItems.some((item) => item.id === productId);
+  }, [wishlistItems]);
 
   const removeFromCart = (productId) => {
     setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
@@ -128,10 +184,15 @@ function App() {
     );
   };
 
-  // 购物车数据持久化 —— 当 cartItems 变化时自动保存到 localStorage
+  // 购物车数据持久化
   useEffect(() => {
     localStorage.setItem('myStoreCart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  // 愿望清单数据持久化
+  useEffect(() => {
+    localStorage.setItem('myStoreWishlist', JSON.stringify(wishlistItems));
+  }, [wishlistItems]);
 
   const scrollToProducts = () => {
     productsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -141,10 +202,16 @@ function App() {
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar 
         cartCount={totalCount} 
+        wishlistCount={wishlistItems.length}
         onCartClick={() => setCartOpen(true)} 
+        onWishlistClick={() => setWishlistOpen(true)}
         cartItems={cartItems}
         totalCount={totalCount}
         totalPrice={totalPrice}
+        cartIconRef={cartIconRef}
+        user={user}
+        onLoginClick={() => setAuthModalOpen(true)}
+        onLogout={signOut}
       />
 
       <CartSidebar
@@ -158,13 +225,43 @@ function App() {
         onRemoveItem={removeFromCart}
         onClear={clearCart}
       />
+
+      <WishlistSidebar
+        isOpen={wishlistOpen}
+        onClose={() => setWishlistOpen(false)}
+        wishlistItems={wishlistItems}
+        onToggleWishlist={toggleWishlist}
+        onAddToCart={addToCart}
+      />
+
       <Hero
         onScrollToProducts={scrollToProducts}
         featuredProducts={products.slice(0, 3)}
         onAddToCart={addToCart}
       />
-      <ProductList products={products} onAddToCart={addToCart} sectionRef={productsSectionRef} />
+
+      <CountdownBanner />
+
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
+
+      <ProductList 
+        products={products} 
+        onAddToCart={addToCart} 
+        sectionRef={productsSectionRef}
+        wishlistItems={wishlistItems}
+        onToggleWishlist={toggleWishlist}
+      />
       <Footer />
+
+      <BackToTop />
+
+      {/* 飞入动画层 */}
+      {flyingItems.map((item) => (
+        <FlyingItem key={item.id} {...item} />
+      ))}
     </div>
   );
 }
