@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // 倒计时目标：距离今天 +3 天 00:00:00
 function getTargetDate() {
@@ -10,17 +10,16 @@ function getTargetDate() {
 }
 
 function CountdownBanner() {
+  const endTimeRef = useRef(getTargetDate().getTime());
   const [timeLeft, setTimeLeft] = useState(() => {
-    const diff = getTargetDate() - new Date();
+    const diff = endTimeRef.current - Date.now();
     return diff > 0 ? diff : 0;
   });
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        const next = prev - 1000;
-        return next > 0 ? next : 0;
-      });
+      const diff = endTimeRef.current - Date.now();
+      setTimeLeft(diff > 0 ? diff : 0);
     }, 1000);
     return () => clearInterval(timer);
   }, []);

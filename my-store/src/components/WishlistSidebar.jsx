@@ -63,7 +63,11 @@ function WishlistSidebar({ isOpen, onClose, wishlistItems, onToggleWishlist, onA
                     <p className="text-lg font-bold text-gray-900 mt-1">¥{product.price}</p>
                     <div className="flex gap-2 mt-2">
                       <button
-                        onClick={() => onAddToCart(product)}
+                        onClick={(e) => {
+                          const img = e.currentTarget.closest('.flex')?.querySelector('img');
+                          const rect = img?.getBoundingClientRect();
+                          onAddToCart(product, rect);
+                        }}
                         className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors"
                       >
                         加入购物车

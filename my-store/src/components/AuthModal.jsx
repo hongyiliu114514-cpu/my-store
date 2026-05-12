@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import useAuth from '../hooks/useAuth';
 
-export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
-  const { signIn, signUp } = useAuth();
+export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
@@ -21,7 +19,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
         await signUp(email, password);
       }
       onClose();
-      onAuthSuccess?.();
     } catch (err) {
       setError(err.message || '认证失败，请重试');
     }

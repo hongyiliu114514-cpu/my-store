@@ -35,13 +35,13 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
 
           {/* 中间菜单 - 桌面端 */}
           <nav className="hidden md:flex space-x-8">
-            <a href="/" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+            <a href="/" onClick={(e) => e.preventDefault()} className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
               首页
             </a>
-            <a href="/products" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+            <a href="/products" onClick={(e) => e.preventDefault()} className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
               全部商品
             </a>
-            <a href="/about" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+            <a href="/about" onClick={(e) => e.preventDefault()} className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
               关于我们
             </a>
           </nav>
@@ -185,13 +185,13 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
         {/* 移动端下拉菜单 */}
         {mobileMenuOpen && (
           <nav className="md:hidden border-t border-gray-200 py-3 space-y-2">
-            <a href="/" className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
+            <a href="/" onClick={(e) => e.preventDefault()} className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
               首页
             </a>
-            <a href="/products" className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
+            <a href="/products" onClick={(e) => e.preventDefault()} className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
               全部商品
             </a>
-            <a href="/about" className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
+            <a href="/about" onClick={(e) => e.preventDefault()} className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
               关于我们
             </a>
           </nav>

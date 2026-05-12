@@ -16,6 +16,7 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
   const [isHovering, setIsHovering] = useState(false);
   const [detailProduct, setDetailProduct] = useState(null);
   const [animating, setAnimating] = useState(false);
+  const animatingRef = useRef(false);
   const touchStartX = useRef(null);
 
   const allSlides = [...slides];
@@ -34,10 +35,11 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
   const totalSlides = allSlides.length;
 
   const goTo = useCallback((index) => {
-    if (animating) return;
+    if (animatingRef.current) return;
+    animatingRef.current = true;
     setAnimating(true);
     setCurrent((index + totalSlides) % totalSlides);
-  }, [totalSlides, animating]);
+  }, [totalSlides]);
 
   const prev = () => goTo(current - 1);
   const next = () => goTo(current + 1);
@@ -59,6 +61,7 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
   useEffect(() => {
     if (totalSlides <= 1 || isHovering) return;
     const timer = setInterval(() => {
+      animatingRef.current = true;
       setAnimating(true);
       setCurrent((prev) => (prev + 1) % totalSlides);
     }, 10000);
@@ -88,7 +91,7 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
             transform: `translateX(-${current * 100}%)`,
             transitionDuration: animating ? '700ms' : '0ms',
           }}
-          onTransitionEnd={() => setAnimating(false)}
+          onTransitionEnd={() => { setAnimating(false); animatingRef.current = false; }}
         >
           {allSlides.map((s, i) => (
             <div

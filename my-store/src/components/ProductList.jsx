@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, memo } from 'react';
 import ProductDetail from './ProductDetail';
 import StarRating from './StarRating';
 
@@ -38,7 +38,7 @@ function getRating(productId) {
   };
 }
 
-function ProductCard({ product, onAddToCart, wishlistItems, onToggleWishlist, index }) {
+const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistItems, onToggleWishlist, index }) {
   const [aosRef, aosVisible] = useAOS();
   const cardRef = useRef(null);
   const isLiked = wishlistItems.some((item) => item.id === product.id);
@@ -120,7 +120,7 @@ function ProductCard({ product, onAddToCart, wishlistItems, onToggleWishlist, in
       </div>
     </div>
   );
-}
+});
 
 function ProductList({ products, onAddToCart, sectionRef, wishlistItems, onToggleWishlist }) {
   const [selectedCategory, setSelectedCategory] = useState('全部');
