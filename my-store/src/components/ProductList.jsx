@@ -62,7 +62,7 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistIt
     >
       {/* 图片容器 */}
       <div
-        className="relative w-56 h-56 mx-auto mt-5 overflow-hidden rounded-lg cursor-pointer transition-transform hover:scale-105 group"
+        className="relative w-full aspect-square max-w-48 sm:max-w-56 mx-auto mt-4 sm:mt-5 overflow-hidden rounded-lg cursor-pointer transition-transform hover:scale-105 group"
         onClick={() => {
           const detailEvent = new CustomEvent('openDetail', { detail: product });
           window.dispatchEvent(detailEvent);
@@ -92,28 +92,28 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistIt
         </button>
       </div>
 
-      <div className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      <div className="p-3 sm:p-6">
+        <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
           {product.name}
         </h3>
 
         {/* 星级评价 */}
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
           <StarRating rating={rating} />
-          <span className="text-xs text-gray-400">({count}条评价)</span>
+          <span className="text-[10px] sm:text-xs text-gray-400">({count}条评价)</span>
         </div>
 
-        <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-xs text-gray-400">
+        <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
+          <span className="text-[10px] sm:text-xs text-gray-400">
             已售{product.sales >= 100 ? '99+' : product.sales}件
           </span>
-          <span className="text-xl font-bold text-gray-900">
+          <span className="text-base sm:text-xl font-bold text-gray-900">
             ¥{product.price}
           </span>
         </div>
         <button
           onClick={handleAddToCart}
-          className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors active:scale-95"
+          className="w-full bg-blue-600 text-white py-1.5 sm:py-2 rounded-md text-sm sm:text-base font-medium hover:bg-blue-700 transition-colors active:scale-95"
         >
           加入购物车
         </button>
@@ -144,20 +144,20 @@ function ProductList({ products, onAddToCart, sectionRef, wishlistItems, onToggl
   }, [products, selectedCategory]);
 
   return (
-    <section ref={sectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex-1">
-      <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+    <section ref={sectionRef} className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-16 flex-1">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-8 sm:mb-12">
         热门商品
       </h2>
 
-      <div className="flex flex-wrap justify-center gap-3 mb-10">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
             className={
               selectedCategory === cat
-                ? 'bg-gray-900 text-white px-5 py-2 rounded-md font-medium transition-colors'
-                : 'bg-gray-200 text-gray-600 px-5 py-2 rounded-md font-medium hover:bg-gray-300 transition-colors'
+                ? 'bg-gray-900 text-white px-3 sm:px-5 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors'
+                : 'bg-gray-200 text-gray-600 px-3 sm:px-5 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium hover:bg-gray-300 transition-colors'
             }
           >
             {cat}
@@ -165,7 +165,7 @@ function ProductList({ products, onAddToCart, sectionRef, wishlistItems, onToggl
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
         {filteredProducts.map((product, index) => (
           <ProductCard
             key={product.id}

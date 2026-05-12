@@ -31,7 +31,7 @@ function ProductDetail({ product, onClose, onAddToCart }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* 关闭按钮 */}
-        <div className="sticky top-0 bg-white flex justify-end p-4 pb-0 z-10">
+        <div className="sticky top-0 bg-white flex justify-end p-3 sm:p-4 pb-0 z-10">
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
@@ -41,27 +41,27 @@ function ProductDetail({ product, onClose, onAddToCart }) {
         </div>
 
         {/* 内容区 */}
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6">
           <img
             ref={imgRef}
             src={product.image}
             alt={product.name}
-            className="w-full h-80 object-cover rounded-lg mb-6"
+            className="w-full h-48 sm:h-64 lg:h-80 object-cover rounded-lg mb-4 sm:mb-6"
           />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
             {product.name}
           </h2>
 
           {/* 星级评价 */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-2 sm:mb-3">
             <StarRating rating={rating} size="md" />
-            <span className="text-sm text-gray-400">({count}条评价)</span>
+            <span className="text-xs sm:text-sm text-gray-400">({count}条评价)</span>
           </div>
 
-          <p className="text-3xl font-bold text-gray-900 mb-4">
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
             ¥{product.price}
           </p>
-          <p className="text-gray-600 mb-6 leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed">
             {product.description}
           </p>
 

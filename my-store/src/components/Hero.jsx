@@ -84,7 +84,7 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
 
         {/* 轮播轨道 */}
         <div
-          className={`flex h-[70vh] min-h-[500px] transition-transform duration-700 ease-in-out ${
+          className={`flex h-[50vh] sm:h-[60vh] lg:h-[70vh] min-h-[350px] sm:min-h-[450px] lg:min-h-[500px] transition-transform duration-700 ease-in-out ${
             isHovering ? 'scale-105' : 'scale-100'
           }`}
           style={{
@@ -112,15 +112,15 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
         {/* 文字内容 */}
         <div className="absolute inset-0 z-20 flex items-center pointer-events-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-bold mb-3 sm:mb-4 tracking-tight">
               {slide.title}
             </h1>
-            <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-lg">
+            <p className="text-sm sm:text-lg lg:text-xl text-gray-200 mb-6 sm:mb-8 max-w-lg">
               {slide.subtitle}
             </p>
             <button
               onClick={onScrollToProducts}
-              className="pointer-events-auto bg-blue-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-blue-700 transition-colors shadow-lg"
+              className="pointer-events-auto bg-blue-600 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-md text-sm sm:text-base font-semibold hover:bg-blue-700 transition-colors shadow-lg"
             >
               立即购买
             </button>
@@ -148,10 +148,10 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
         {totalSlides > 1 && (
           <button
             onClick={prev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all"
             aria-label="上一张"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -161,10 +161,10 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
         {totalSlides > 1 && (
           <button
             onClick={next}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all"
             aria-label="下一张"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>

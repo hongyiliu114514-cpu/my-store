@@ -36,7 +36,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
 
       {/* 购物车侧边栏 */}
       <div
-        className={`fixed top-0 right-0 h-full w-96 max-w-full bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-96 max-w-full bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >

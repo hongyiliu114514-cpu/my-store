@@ -1,10 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const STORAGE_KEY = 'myStoreAnnouncementDismissed';
 
 function AnnouncementModal({ version, content }) {
   const [visible, setVisible] = useState(false);
   const [dontRemind, setDontRemind] = useState(false);
+  const versionRef = useRef(version);
+
+  useEffect(() => {
+    versionRef.current = version;
+  }, [version]);
 
   useEffect(() => {
     if (!content || content.length === 0) return;
@@ -20,16 +25,17 @@ function AnnouncementModal({ version, content }) {
     // 延迟弹出，让页面先渲染
     const timer = setTimeout(() => setVisible(true), 400);
     return () => clearTimeout(timer);
-  }, [version, content]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [version]);
 
   const handleClose = useCallback(() => {
     setVisible(false);
     if (dontRemind) {
       try {
-        localStorage.setItem(STORAGE_KEY, String(version));
+        localStorage.setItem(STORAGE_KEY, String(versionRef.current));
       } catch { /* 静默失败 */ }
     }
-  }, [dontRemind, version]);
+  }, [dontRemind]);
 
   if (!visible) return null;
 

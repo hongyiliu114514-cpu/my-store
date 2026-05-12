@@ -53,7 +53,7 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={handleOverlayClick}
     >
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl relative">
+      <div className="w-full max-w-sm sm:max-w-md mx-3 sm:mx-0 rounded-2xl bg-white p-6 sm:p-8 shadow-xl relative">
         {/* 右上角关闭按钮 */}
         <button
           onClick={onClose}
@@ -61,7 +61,7 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
         >
           &times;
         </button>
-        <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">
+        <h2 className="mb-4 sm:mb-6 text-center text-xl sm:text-2xl font-bold text-gray-800">
           {isLogin ? '登录' : '注册'}
         </h2>
 

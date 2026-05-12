@@ -26,10 +26,10 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <a href="/" className="text-2xl font-bold tracking-wider text-gray-900">
+          <a href="/" className="text-lg sm:text-2xl font-bold tracking-wider text-gray-900">
             MYSTORE
           </a>
 
@@ -47,7 +47,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
           </nav>
 
           {/* 右侧：用户 + 收藏 + 购物车图标 + 汉堡菜单按钮 */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-2">
             {/* 登录/用户按钮 */}
             {user ? (
               <div className="relative group">
@@ -87,10 +87,10 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
             {/* 收藏图标 */}
             <button
               onClick={onWishlistClick}
-              className="relative p-2 text-gray-700 hover:text-red-500 transition-colors"
+              className="relative p-1.5 sm:p-2 text-gray-700 hover:text-red-500 transition-colors"
               aria-label="收藏"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
               {wishlistCount > 0 && (
@@ -109,9 +109,9 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
               <button
                 ref={cartIconRef}
                 onClick={onCartClick}
-                className="relative p-2 text-gray-700 hover:text-gray-900 transition-colors"
+                className="relative p-1.5 sm:p-2 text-gray-700 hover:text-gray-900 transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                 </svg>
                 {cartCount > 0 && (
@@ -123,7 +123,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
 
               {/* 购物车预览气泡 */}
               {showPreview && cartItems && cartItems.length > 0 && (
-                <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-50">
+                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-50">
                   <div className="absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45" />
 
                   <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
@@ -166,7 +166,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
             {/* 汉堡菜单按钮 - 移动端 */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-gray-700 hover:text-gray-900 transition-colors"
+              className="md:hidden p-1.5 text-gray-700 hover:text-gray-900 transition-colors"
               aria-label="菜单"
             >
               {mobileMenuOpen ? (
