@@ -7,8 +7,10 @@ export default function useAuth() {
   useEffect(() => {
     if (!supabase) return;
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data?.user ?? null);
+    }).catch(() => {
+      // 未登录或 token 过期，忽略
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -22,14 +24,16 @@ export default function useAuth() {
 
   const signUp = async (email, password) => {
     if (!supabase) throw new Error('Supabase 未配置');
-    const result = await supabase.auth.signUp({ email, password });
-    return result;
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    return data;
   };
 
   const signIn = async (email, password) => {
     if (!supabase) throw new Error('Supabase 未配置');
-    const result = await supabase.auth.signInWithPassword({ email, password });
-    return result;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
   };
 
   const signOut = async () => {

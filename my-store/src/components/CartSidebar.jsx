@@ -1,4 +1,29 @@
-function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onChangeQuantity, onSetQuantity, onRemoveItem, onClear }) {
+import { useState } from 'react';
+
+function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onChangeQuantity, onSetQuantity, onRemoveItem, onClear, onCheckout }) {
+  const [address, setAddress] = useState('');
+  const [showAddressInput, setShowAddressInput] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
+
+  const handleCheckoutClick = () => {
+    setShowAddressInput(true);
+  };
+
+  const handleSubmitOrder = async () => {
+    if (!address.trim()) {
+      alert('请输入收货地址');
+      return;
+    }
+    setCheckingOut(true);
+    try {
+      await onCheckout(address.trim());
+    } finally {
+      setCheckingOut(false);
+      setShowAddressInput(false);
+      setAddress('');
+    }
+  };
+
   return (
     <>
       {/* 遮罩 */}
@@ -92,13 +117,44 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
         {/* 底部总价 */}
         {cartItems && cartItems.length > 0 && (
           <div className="border-t border-gray-200 px-5 py-4 space-y-3">
+            {/* 地址输入 */}
+            {showAddressInput && (
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-600">
+                  收货地址
+                </label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="请输入收货地址"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                />
+              </div>
+            )}
+
             <div className="flex justify-between text-base font-semibold text-gray-800">
               <span>合计</span>
               <span>¥{totalPrice}</span>
             </div>
-            <button className="w-full bg-blue-600 text-white py-2.5 rounded hover:bg-blue-700 transition-colors text-sm">
-              去结算
-            </button>
+
+            {showAddressInput ? (
+              <button
+                onClick={handleSubmitOrder}
+                disabled={checkingOut}
+                className="w-full bg-green-600 text-white py-2.5 rounded hover:bg-green-700 transition-colors text-sm disabled:opacity-50"
+              >
+                {checkingOut ? '提交中...' : '确认下单'}
+              </button>
+            ) : (
+              <button
+                onClick={handleCheckoutClick}
+                className="w-full bg-blue-600 text-white py-2.5 rounded hover:bg-blue-700 transition-colors text-sm"
+              >
+                去结算
+              </button>
+            )}
+
             <button
               onClick={onClear}
               className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition-colors text-sm"

@@ -43,6 +43,13 @@ function AnnouncementModal({ version, content }) {
 
       {/* 中央长方形内容区 */}
       <div className="relative w-full max-w-lg mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
+        {/* 右上角关闭按钮 */}
+        <button
+          onClick={handleClose}
+          className="absolute top-3 right-3 z-10 text-gray-400 hover:text-gray-600 text-2xl leading-none transition-colors"
+        >
+          &times;
+        </button>
         {/* 顶部白色品牌条 */}
         <div className="bg-white px-6 pt-6 pb-4 text-center">
           <h2 className="text-2xl font-bold tracking-wider text-gray-900">

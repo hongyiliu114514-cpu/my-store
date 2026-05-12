@@ -5,20 +5,32 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
+
+    // 注册时检查密码长度
+    if (!isLogin && password.length < 6) {
+      setError('密码长度不能少于 6 位');
+      return;
+    }
 
     try {
       if (isLogin) {
         await signIn(email, password);
+        onClose();
       } else {
-        await signUp(email, password);
+        const data = await signUp(email, password);
+        // Supabase 注册成功后会发送确认邮件
+        if (data?.user) {
+          setSuccessMsg('注册成功！请前往邮箱查看确认邮件，点击链接激活账号后再登录。');
+        }
       }
-      onClose();
     } catch (err) {
       setError(err.message || '认证失败，请重试');
     }
@@ -27,6 +39,7 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
   const toggleMode = () => {
     setIsLogin((prev) => !prev);
     setError('');
+    setSuccessMsg('');
   };
 
   const handleOverlayClick = (e) => {
@@ -40,7 +53,14 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={handleOverlayClick}
     >
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl relative">
+        {/* 右上角关闭按钮 */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl leading-none transition-colors"
+        >
+          &times;
+        </button>
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">
           {isLogin ? '登录' : '注册'}
         </h2>
@@ -77,6 +97,12 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
           {error && (
             <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
               {error}
+            </p>
+          )}
+
+          {successMsg && (
+            <p className="rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">
+              {successMsg}
             </p>
           )}
 

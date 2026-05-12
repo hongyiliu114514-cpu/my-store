@@ -12,6 +12,7 @@ import AuthModal from './components/AuthModal';
 import AnnouncementModal from './components/AnnouncementModal';
 import AnnouncementBadge from './components/AnnouncementBadge';
 import useAuth from './hooks/useAuth';
+import supabase from './supabaseClient';
 import products from './data/products';
 import announcement from './data/announcements';
 
@@ -98,16 +99,69 @@ function App() {
     setCartItems([]);
   };
 
+  const handleCheckout = async (address) => {
+    if (!supabase) {
+      alert('系统未配置数据库连接，下单功能暂不可用');
+      return;
+    }
+
+    try {
+      // 1. 插入订单（未登录用户 user_id 为 null）
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user?.id ?? null,
+          total_price: totalPrice,
+          status: '待处理',
+          address: address,
+        })
+        .select('id')
+        .single();
+
+      if (orderError) throw orderError;
+      const orderId = orderData.id;
+
+      // 2. 批量插入订单商品
+      const orderItems = cartItems.map((item) => ({
+        order_id: orderId,
+        product_id: item.product.id,
+        product_name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // 3. 如果已登录，删除购物车记录
+      if (user) {
+        await supabase.from('cart_items').delete().eq('user_id', user.id);
+      }
+
+      // 4. 清空前端状态
+      setCartItems([]);
+      setCartOpen(false);
+
+      // 5. 提示成功
+      alert(`下单成功！订单号：${orderId}`);
+    } catch (err) {
+      alert('下单失败：' + (err.message || '未知错误'));
+    }
+  };
+
   const changeQuantity = (productId, delta) => {
-    setCartItems((prev) =>
-      prev
-        .map((item) =>
-          item.product.id === productId
-            ? { ...item, quantity: item.quantity + delta }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
+    setCartItems((prev) => {
+      const newItems = prev.map((item) =>
+        item.product.id === productId
+          ? { ...item, quantity: item.quantity + delta }
+          : item
+      );
+      // 过滤掉数量 ≤ 0 的商品
+      return newItems.filter((item) => item.quantity > 0);
+    });
   };
 
   const setItemQuantity = (productId, quantity) => {
@@ -163,6 +217,7 @@ function App() {
         onSetQuantity={setItemQuantity}
         onRemoveItem={removeFromCart}
         onClear={clearCart}
+        onCheckout={handleCheckout}
       />
 
       <WishlistSidebar
