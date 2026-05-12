@@ -62,7 +62,7 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistIt
     >
       {/* 图片容器 */}
       <div
-        className="relative w-full aspect-square max-w-48 sm:max-w-56 mx-auto mt-4 sm:mt-5 overflow-hidden rounded-lg cursor-pointer transition-transform hover:scale-105 group"
+        className="relative w-full sm:w-56 sm:h-56 mx-auto mt-3 sm:mt-5 overflow-hidden rounded-lg cursor-pointer transition-transform hover:scale-105 group aspect-square sm:aspect-auto"
         onClick={() => {
           const detailEvent = new CustomEvent('openDetail', { detail: product });
           window.dispatchEvent(detailEvent);
@@ -92,8 +92,8 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistIt
         </button>
       </div>
 
-      <div className="p-3 sm:p-6">
-        <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
+      <div className="p-3 sm:p-5">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">
           {product.name}
         </h3>
 
@@ -107,7 +107,7 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistIt
           <span className="text-[10px] sm:text-xs text-gray-400">
             已售{product.sales >= 100 ? '99+' : product.sales}件
           </span>
-          <span className="text-base sm:text-xl font-bold text-gray-900">
+          <span className="text-base sm:text-lg font-bold text-gray-900">
             ¥{product.price}
           </span>
         </div>
@@ -165,7 +165,7 @@ function ProductList({ products, onAddToCart, sectionRef, wishlistItems, onToggl
         ))}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
         {filteredProducts.map((product, index) => (
           <ProductCard
             key={product.id}

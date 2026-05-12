@@ -1,29 +1,6 @@
 import { useState } from 'react';
 
 function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onChangeQuantity, onSetQuantity, onRemoveItem, onClear, onCheckout }) {
-  const [address, setAddress] = useState('');
-  const [showAddressInput, setShowAddressInput] = useState(false);
-  const [checkingOut, setCheckingOut] = useState(false);
-
-  const handleCheckoutClick = () => {
-    setShowAddressInput(true);
-  };
-
-  const handleSubmitOrder = async () => {
-    if (!address.trim()) {
-      alert('请输入收货地址');
-      return;
-    }
-    setCheckingOut(true);
-    try {
-      await onCheckout(address.trim());
-    } finally {
-      setCheckingOut(false);
-      setShowAddressInput(false);
-      setAddress('');
-    }
-  };
-
   return (
     <>
       {/* 遮罩 */}
@@ -41,7 +18,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
         }`}
       >
         {/* 头部 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800">
             购物车 ({totalCount})
           </h2>
@@ -54,7 +31,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
         </div>
 
         {/* 商品列表 */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-5 sm:py-4 space-y-3 sm:space-y-4">
           {!cartItems || cartItems.length === 0 ? (
             <p className="text-gray-400 text-center mt-12">购物车是空的</p>
           ) : (
@@ -66,7 +43,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
                 <img
                   src={item.product.image}
                   alt={item.product.name}
-                  className="w-16 h-16 rounded object-cover flex-shrink-0"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded object-cover flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800 truncate">
@@ -78,7 +55,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
                   <div className="flex items-center gap-1 mt-1">
                     <button
                       onClick={() => onChangeQuantity(item.product.id, -1)}
-                      className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 text-sm"
+                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 text-xs sm:text-sm"
                     >
                       −
                     </button>
@@ -86,13 +63,13 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
                       type="number"
                       value={item.quantity}
                       onChange={(e) => onSetQuantity(item.product.id, e.target.value)}
-                      className="w-12 h-6 text-center text-sm border border-gray-300 rounded focus:outline-none focus:border-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-10 sm:w-12 h-5 sm:h-6 text-center text-xs sm:text-sm border border-gray-300 rounded focus:outline-none focus:border-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min="1"
                       max="99"
                     />
                     <button
                       onClick={() => onChangeQuantity(item.product.id, 1)}
-                      className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 text-sm"
+                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 text-xs sm:text-sm"
                     >
                       +
                     </button>
@@ -116,44 +93,18 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
 
         {/* 底部总价 */}
         {cartItems && cartItems.length > 0 && (
-          <div className="border-t border-gray-200 px-5 py-4 space-y-3">
-            {/* 地址输入 */}
-            {showAddressInput && (
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-600">
-                  收货地址
-                </label>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="请输入收货地址"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                />
-              </div>
-            )}
-
+          <div className="border-t border-gray-200 px-4 py-3 sm:px-5 sm:py-4 space-y-2 sm:space-y-3">
             <div className="flex justify-between text-base font-semibold text-gray-800">
               <span>合计</span>
               <span>¥{totalPrice}</span>
             </div>
 
-            {showAddressInput ? (
-              <button
-                onClick={handleSubmitOrder}
-                disabled={checkingOut}
-                className="w-full bg-green-600 text-white py-2.5 rounded hover:bg-green-700 transition-colors text-sm disabled:opacity-50"
-              >
-                {checkingOut ? '提交中...' : '确认下单'}
-              </button>
-            ) : (
-              <button
-                onClick={handleCheckoutClick}
-                className="w-full bg-blue-600 text-white py-2.5 rounded hover:bg-blue-700 transition-colors text-sm"
-              >
-                去结算
-              </button>
-            )}
+            <button
+              onClick={onCheckout}
+              className="w-full bg-blue-600 text-white py-2.5 rounded hover:bg-blue-700 transition-colors text-sm"
+            >
+              去结算
+            </button>
 
             <button
               onClick={onClear}

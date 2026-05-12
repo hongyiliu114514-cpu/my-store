@@ -112,10 +112,10 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
         {/* 文字内容 */}
         <div className="absolute inset-0 z-20 flex items-center pointer-events-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-bold mb-3 sm:mb-4 tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 tracking-tight">
               {slide.title}
             </h1>
-            <p className="text-sm sm:text-lg lg:text-xl text-gray-200 mb-6 sm:mb-8 max-w-lg">
+            <p className="text-sm sm:text-base lg:text-xl text-gray-200 mb-6 sm:mb-8 max-w-lg">
               {slide.subtitle}
             </p>
             <button

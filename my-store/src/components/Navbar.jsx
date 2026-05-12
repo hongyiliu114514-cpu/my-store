@@ -29,7 +29,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <a href="/" className="text-lg sm:text-2xl font-bold tracking-wider text-gray-900">
+          <a href="/" className="text-base sm:text-xl font-bold tracking-wider text-gray-900">
             MYSTORE
           </a>
 
@@ -47,7 +47,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
           </nav>
 
           {/* 右侧：用户 + 收藏 + 购物车图标 + 汉堡菜单按钮 */}
-          <div className="flex items-center gap-0.5 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-3">
             {/* 登录/用户按钮 */}
             {user ? (
               <div className="relative group">
@@ -123,7 +123,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
 
               {/* 购物车预览气泡 */}
               {showPreview && cartItems && cartItems.length > 0 && (
-                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-50">
+                <div className="hidden sm:block absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-50">
                   <div className="absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45" />
 
                   <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">

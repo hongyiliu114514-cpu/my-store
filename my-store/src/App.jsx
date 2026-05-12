@@ -11,6 +11,8 @@ import CountdownBanner from './components/CountdownBanner';
 import AuthModal from './components/AuthModal';
 import AnnouncementModal from './components/AnnouncementModal';
 import AnnouncementBadge from './components/AnnouncementBadge';
+import CheckoutPage from './components/CheckoutPage';
+import OrderSuccessPage from './components/OrderSuccessPage';
 import useAuth from './hooks/useAuth';
 import supabase from './supabaseClient';
 import products from './data/products';
@@ -18,6 +20,8 @@ import announcement from './data/announcements';
 
 function App() {
   const { user, signOut, signIn, signUp } = useAuth();
+  const [currentPage, setCurrentPage] = useState('home');
+  const [lastOrderId, setLastOrderId] = useState(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [cartItems, setCartItems] = useState(() => {
   try {
@@ -99,57 +103,51 @@ function App() {
     setCartItems([]);
   };
 
-  const handleCheckout = async (address) => {
+  const handleCheckout = async ({ name, phone, address }) => {
     if (!supabase) {
-      alert('系统未配置数据库连接，下单功能暂不可用');
-      return;
+      throw new Error('系统未配置数据库连接，下单功能暂不可用');
     }
 
-    try {
-      // 1. 插入订单（未登录用户 user_id 为 null）
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user?.id ?? null,
-          total_price: totalPrice,
-          status: '待处理',
-          address: address,
-        })
-        .select('id')
-        .single();
+    // 1. 插入订单
+    const { data: orderData, error: orderError } = await supabase
+      .from('orders')
+      .insert({
+        user_id: user.id,
+        total_price: totalPrice,
+        status: '待处理',
+        name,
+        phone,
+        address,
+      })
+      .select('id')
+      .single();
 
-      if (orderError) throw orderError;
-      const orderId = orderData.id;
+    if (orderError) throw orderError;
+    const orderId = orderData.id;
 
-      // 2. 批量插入订单商品
-      const orderItems = cartItems.map((item) => ({
-        order_id: orderId,
-        product_id: item.product.id,
-        product_name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity,
-      }));
+    // 2. 批量插入订单商品
+    const orderItems = cartItems.map((item) => ({
+      order_id: orderId,
+      product_id: item.product.id,
+      product_name: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+    }));
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+    if (itemsError) throw itemsError;
 
-      // 3. 如果已登录，删除购物车记录
-      if (user) {
-        await supabase.from('cart_items').delete().eq('user_id', user.id);
-      }
+    // 3. 删除该用户的购物车数据库记录
+    await supabase.from('cart_items').delete().eq('user_id', user.id);
 
-      // 4. 清空前端状态
-      setCartItems([]);
-      setCartOpen(false);
-
-      // 5. 提示成功
-      alert(`下单成功！订单号：${orderId}`);
-    } catch (err) {
-      alert('下单失败：' + (err.message || '未知错误'));
-    }
+    // 4. 清空前端状态并跳转成功页
+    setCartItems([]);
+    setCartOpen(false);
+    setLastOrderId(orderId);
+    setCurrentPage('success');
   };
 
   const changeQuantity = (productId, delta) => {
@@ -191,6 +189,31 @@ function App() {
     productsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  if (currentPage === 'checkout') {
+    return (
+      <CheckoutPage
+        cartItems={cartItems}
+        totalPrice={totalPrice}
+        user={user}
+        onSubmit={handleCheckout}
+        onBack={() => setCurrentPage('home')}
+        onLoginClick={() => setAuthModalOpen(true)}
+      />
+    );
+  }
+
+  if (currentPage === 'success') {
+    return (
+      <OrderSuccessPage
+        orderId={lastOrderId}
+        onContinueShopping={() => {
+          setCurrentPage('home');
+          setCartOpen(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar 
@@ -217,7 +240,10 @@ function App() {
         onSetQuantity={setItemQuantity}
         onRemoveItem={removeFromCart}
         onClear={clearCart}
-        onCheckout={handleCheckout}
+        onCheckout={() => {
+          setCartOpen(false);
+          setCurrentPage('checkout');
+        }}
       />
 
       <WishlistSidebar
