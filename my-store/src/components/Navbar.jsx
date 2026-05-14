@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartItems, totalCount, totalPrice, cartIconRef, user, onLoginClick, onLogout }) {
+function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartItems, totalCount, totalPrice, cartIconRef, user, onLoginClick, onLogout, currentPage = 'home', onNavigate = () => {} }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const previewTimerRef = useRef(null);
@@ -29,21 +29,26 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <a href="/" className="text-base sm:text-xl font-bold tracking-wider text-gray-900">
+          <button onClick={() => onNavigate('home')} className="text-base sm:text-xl font-bold tracking-wider text-gray-900 hover:text-gray-700 transition-colors">
             MYSTORE
-          </a>
+          </button>
 
           {/* 中间菜单 - 桌面端 */}
-          <nav className="hidden md:flex space-x-8">
-            <a href="/" onClick={(e) => e.preventDefault()} className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+          <nav className="hidden md:flex items-center space-x-8">
+            <button onClick={() => onNavigate('home')} className={`font-medium transition-colors ${currentPage === 'home' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
               首页
-            </a>
-            <a href="/products" onClick={(e) => e.preventDefault()} className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+            </button>
+            <button onClick={() => onNavigate('products')} className={`font-medium transition-colors ${currentPage === 'products' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
               全部商品
-            </a>
-            <a href="/about" onClick={(e) => e.preventDefault()} className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+            </button>
+            <button onClick={() => onNavigate('about')} className={`font-medium transition-colors ${currentPage === 'about' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
               关于我们
-            </a>
+            </button>
+            {user && (
+              <button onClick={() => onNavigate('orders')} className={`font-medium transition-colors ${currentPage === 'orders' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
+                我的订单
+              </button>
+            )}
           </nav>
 
           {/* 右侧：用户 + 收藏 + 购物车图标 + 汉堡菜单按钮 */}
@@ -185,15 +190,20 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
         {/* 移动端下拉菜单 */}
         {mobileMenuOpen && (
           <nav className="md:hidden border-t border-gray-200 py-3 space-y-2">
-            <a href="/" onClick={(e) => e.preventDefault()} className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
+            <button onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'home' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
               首页
-            </a>
-            <a href="/products" onClick={(e) => e.preventDefault()} className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
+            </button>
+            <button onClick={() => { onNavigate('products'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'products' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
               全部商品
-            </a>
-            <a href="/about" onClick={(e) => e.preventDefault()} className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md font-medium transition-colors">
+            </button>
+            <button onClick={() => { onNavigate('about'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'about' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
               关于我们
-            </a>
+            </button>
+            {user && (
+              <button onClick={() => { onNavigate('orders'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'orders' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
+                我的订单
+              </button>
+            )}
           </nav>
         )}
       </div>

@@ -55,7 +55,7 @@ export default function CheckoutPage({ cartItems, totalPrice, user, onSubmit, on
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="text-sm font-medium">返回购物车</span>
+            <span className="text-sm font-medium">返回首页</span>
           </button>
           <h1 className="ml-4 text-lg sm:text-xl font-bold text-gray-900">确认订单</h1>
         </div>

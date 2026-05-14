@@ -13,6 +13,8 @@ import AnnouncementModal from './components/AnnouncementModal';
 import AnnouncementBadge from './components/AnnouncementBadge';
 import CheckoutPage from './components/CheckoutPage';
 import OrderSuccessPage from './components/OrderSuccessPage';
+import OrderHistory from './components/OrderHistory';
+import AboutPage from './components/AboutPage';
 import useAuth from './hooks/useAuth';
 import supabase from './supabaseClient';
 import products from './data/products';
@@ -214,6 +216,17 @@ function App() {
     );
   }
 
+  if (currentPage === 'orders') {
+    return (
+      <OrderHistory
+        user={user}
+        onBack={() => setCurrentPage('home')}
+        onLoginClick={() => setAuthModalOpen(true)}
+      />
+    );
+  }
+
+  // 首页 / 商品页 / 关于页 共享 Navbar + 侧边栏 + 弹窗
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar 
@@ -228,6 +241,8 @@ function App() {
         user={user}
         onLoginClick={() => setAuthModalOpen(true)}
         onLogout={signOut}
+        currentPage={currentPage}
+        onNavigate={setCurrentPage}
       />
 
       <CartSidebar
@@ -254,14 +269,6 @@ function App() {
         onAddToCart={addToCart}
       />
 
-      <Hero
-        onScrollToProducts={scrollToProducts}
-        featuredProducts={products.slice(0, 3)}
-        onAddToCart={addToCart}
-      />
-
-      <CountdownBanner />
-
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
@@ -279,13 +286,30 @@ function App() {
         content={announcement.content}
       />
 
-      <ProductList 
-        products={products} 
-        onAddToCart={addToCart} 
-        sectionRef={productsSectionRef}
-        wishlistItems={wishlistItems}
-        onToggleWishlist={toggleWishlist}
-      />
+      {/* 页面内容区 */}
+      {currentPage === 'home' && (
+        <>
+          <Hero
+            onScrollToProducts={scrollToProducts}
+            featuredProducts={products.slice(0, 3)}
+            onAddToCart={addToCart}
+          />
+          <CountdownBanner />
+        </>
+      )}
+
+      {(currentPage === 'home' || currentPage === 'products') && (
+        <ProductList 
+          products={products} 
+          onAddToCart={addToCart} 
+          sectionRef={currentPage === 'home' ? productsSectionRef : null}
+          wishlistItems={wishlistItems}
+          onToggleWishlist={toggleWishlist}
+        />
+      )}
+
+      {currentPage === 'about' && <AboutPage />}
+
       <Footer />
 
       <BackToTop />
