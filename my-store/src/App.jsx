@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ProductList from './components/ProductList';
@@ -21,12 +22,11 @@ import useAuth from './hooks/useAuth';
 import supabase from './supabaseClient';
 import products from './data/products';
 import announcement from './data/announcements';
-import { useLanguage } from './i18n/LanguageContext';
+import AppContext from './context/AppContext';
 
 function App() {
   const { user, signOut, signIn, signUp } = useAuth();
-  const { t, lang } = useLanguage();
-  const [currentPage, setCurrentPage] = useState('home');
+  const navigate = useNavigate();
 
   // 管理员判断（用 useMemo 避免每次渲染重新计算）
   const adminEmails = useMemo(
@@ -162,7 +162,7 @@ function App() {
     setCartItems([]);
     setCartOpen(false);
     setLastOrderId(orderId);
-    setCurrentPage('success');
+    navigate('/order-success');
   };
 
   const changeQuantity = (productId, delta) => {
@@ -204,69 +204,9 @@ function App() {
     productsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  if (currentPage === 'checkout') {
-    return (
-      <CheckoutPage
-        cartItems={cartItems}
-        totalPrice={totalPrice}
-        user={user}
-        onSubmit={handleCheckout}
-        onBack={() => setCurrentPage('home')}
-        onLoginClick={() => setAuthModalOpen(true)}
-      />
-    );
-  }
-
-  if (currentPage === 'success') {
-    return (
-      <OrderSuccessPage
-        orderId={lastOrderId}
-        onContinueShopping={() => {
-          setCurrentPage('home');
-          setCartOpen(false);
-        }}
-      />
-    );
-  }
-
-  if (currentPage === 'orders') {
-    return (
-      <OrderHistory
-        user={user}
-        onBack={() => setCurrentPage('home')}
-        onLoginClick={() => setAuthModalOpen(true)}
-      />
-    );
-  }
-
-  if (currentPage === 'admin') {
-    return (
-      <AdminPage
-        user={user}
-        onBack={() => setCurrentPage('home')}
-      />
-    );
-  }
-
-  // 首页 / 商品页 / 关于页 共享 Navbar + 侧边栏 + 弹窗
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <Navbar 
-        cartCount={totalCount} 
-        wishlistCount={wishlistItems.length}
-        onCartClick={() => setCartOpen(true)} 
-        onWishlistClick={() => setWishlistOpen(true)}
-        cartItems={cartItems}
-        totalCount={totalCount}
-        totalPrice={totalPrice}
-        cartIconRef={cartIconRef}
-        user={user}
-        onLoginClick={() => setAuthModalOpen(true)}
-        onLogout={signOut}
-        currentPage={currentPage}
-        onNavigate={setCurrentPage}
-        isAdmin={isAdmin}
-      />
+      <Navbar />
 
       <CartSidebar
         isOpen={cartOpen}
@@ -280,7 +220,7 @@ function App() {
         onClear={clearCart}
         onCheckout={() => {
           setCartOpen(false);
-          setCurrentPage('checkout');
+          navigate('/checkout');
         }}
       />
 
@@ -311,32 +251,82 @@ function App() {
         content={announcement.content}
       />
 
-      {/* 页面内容区 */}
-      {currentPage === 'home' && (
-        <>
-          <Hero
-            onScrollToProducts={scrollToProducts}
-            featuredProducts={products.slice(0, 3)}
+      {/* 路由内容区 */}
+      <Routes>
+        {/* 首页：Hero + ProductList */}
+        <Route path="/" element={
+          <>
+            <Hero
+              onScrollToProducts={scrollToProducts}
+              featuredProducts={products.slice(0, 3)}
+              onAddToCart={addToCart}
+            />
+            <CountdownBanner />
+            <ProductList
+              products={products}
+              onAddToCart={addToCart}
+              sectionRef={productsSectionRef}
+              wishlistItems={wishlistItems}
+              onToggleWishlist={toggleWishlist}
+            />
+          </>
+        } />
+
+        {/* 商品列表页 */}
+        <Route path="/products" element={
+          <ProductList
+            products={products}
             onAddToCart={addToCart}
+            wishlistItems={wishlistItems}
+            onToggleWishlist={toggleWishlist}
           />
-          <CountdownBanner />
-        </>
-      )}
+        } />
 
-      {(currentPage === 'home' || currentPage === 'products') && (
-        <ProductList 
-          products={products} 
-          onAddToCart={addToCart} 
-          sectionRef={currentPage === 'home' ? productsSectionRef : null}
-          wishlistItems={wishlistItems}
-          onToggleWishlist={toggleWishlist}
-        />
-      )}
+        {/* 关于我们 */}
+        <Route path="/about" element={<AboutPage />} />
 
-      {currentPage === 'about' && <AboutPage />}
+        {/* 我的订单 */}
+        <Route path="/orders" element={
+          <OrderHistory
+            user={user}
+            onBack={() => navigate('/')}
+            onLoginClick={() => setAuthModalOpen(true)}
+          />
+        } />
+
+        {/* 结算页 */}
+        <Route path="/checkout" element={
+          <CheckoutPage
+            cartItems={cartItems}
+            totalPrice={totalPrice}
+            user={user}
+            onSubmit={handleCheckout}
+            onBack={() => navigate('/')}
+            onLoginClick={() => setAuthModalOpen(true)}
+          />
+        } />
+
+        {/* 下单成功 */}
+        <Route path="/order-success" element={
+          <OrderSuccessPage
+            orderId={lastOrderId}
+            onContinueShopping={() => {
+              setCartOpen(false);
+              navigate('/');
+            }}
+          />
+        } />
+
+        {/* 管理后台 */}
+        <Route path="/admin" element={
+          <AdminPage
+            user={user}
+            onBack={() => navigate('/')}
+          />
+        } />
+      </Routes>
 
       <Footer />
-
       <BackToTop />
 
       {/* 飞入动画层 */}

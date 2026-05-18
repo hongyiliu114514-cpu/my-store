@@ -1,16 +1,25 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useAppContext } from '../context/AppContext';
 
-function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartItems, totalCount, totalPrice, cartIconRef, user, onLoginClick, onLogout, currentPage = 'home', onNavigate = () => {}, isAdmin = false }) {
+const navLinkClass = ({ isActive }) =>
+  `font-medium transition-colors ${isActive ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`;
+
+function Navbar() {
   const { t, lang, setShowSelector } = useLanguage();
+  const {
+    user, isAdmin, cartItems, totalCount, totalPrice,
+    wishlistItems, cartIconRef, signOut,
+    setCartOpen, setWishlistOpen, setAuthModalOpen,
+  } = useAppContext();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const previewTimerRef = useRef(null);
 
   const handleMouseEnter = () => {
-    if (previewTimerRef.current) {
-      clearTimeout(previewTimerRef.current);
-    }
+    if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     setShowPreview(true);
   };
 
@@ -20,41 +29,33 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
 
   useEffect(() => {
     return () => {
-      if (previewTimerRef.current) {
-        clearTimeout(previewTimerRef.current);
-      }
+      if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     };
   }, []);
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <button onClick={() => onNavigate('home')} className="text-base sm:text-xl font-bold tracking-wider text-gray-900 hover:text-gray-700 transition-colors">
+          <Link to="/" className="text-base sm:text-xl font-bold tracking-wider text-gray-900 hover:text-gray-700 transition-colors">
             {t('brand')}
-          </button>
+          </Link>
 
           {/* 中间菜单 - 桌面端 */}
           <nav className="hidden md:flex items-center space-x-8">
-            <button onClick={() => onNavigate('home')} className={`font-medium transition-colors ${currentPage === 'home' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
-              {t('home')}
-            </button>
-            <button onClick={() => onNavigate('products')} className={`font-medium transition-colors ${currentPage === 'products' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
-              {t('allProducts')}
-            </button>
-            <button onClick={() => onNavigate('about')} className={`font-medium transition-colors ${currentPage === 'about' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
-              {t('aboutUs')}
-            </button>
+            <NavLink to="/" end className={navLinkClass}>{t('home')}</NavLink>
+            <NavLink to="/products" className={navLinkClass}>{t('allProducts')}</NavLink>
+            <NavLink to="/about" className={navLinkClass}>{t('aboutUs')}</NavLink>
             {user && (
-              <button onClick={() => onNavigate('orders')} className={`font-medium transition-colors ${currentPage === 'orders' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
-                {t('myOrders')}
-              </button>
+              <NavLink to="/orders" className={navLinkClass}>{t('myOrders')}</NavLink>
             )}
             {isAdmin && (
-              <button onClick={() => onNavigate('admin')} className={`font-medium transition-colors ${currentPage === 'admin' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
+              <NavLink to="/admin" className={navLinkClass}>
                 {lang === 'en' ? 'Admin Panel' : '管理后台'}
-              </button>
+              </NavLink>
             )}
           </nav>
 
@@ -71,13 +72,12 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
                     {user.email?.split('@')[0]}
                   </span>
                 </button>
-                {/* 下拉菜单 */}
                 <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-xs text-gray-500 truncate">{user.email}</p>
                   </div>
                   <button
-                    onClick={onLogout}
+                    onClick={signOut}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg transition-colors"
                   >
                     {t('logout')}
@@ -86,7 +86,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
               </div>
             ) : (
               <button
-                onClick={onLoginClick}
+                onClick={() => setAuthModalOpen(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,16 +109,16 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
 
             {/* 收藏图标 */}
             <button
-              onClick={onWishlistClick}
+              onClick={() => setWishlistOpen(true)}
               className="relative p-1.5 sm:p-2 text-gray-700 hover:text-red-500 transition-colors"
-              aria-label="收藏"
+              aria-label={t('wishlist')}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
-              {wishlistCount > 0 && (
+              {wishlistItems.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {wishlistCount}
+                  {wishlistItems.length}
                 </span>
               )}
             </button>
@@ -131,15 +131,15 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
             >
               <button
                 ref={cartIconRef}
-                onClick={onCartClick}
+                onClick={() => setCartOpen(true)}
                 className="relative p-1.5 sm:p-2 text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                 </svg>
-                {cartCount > 0 && (
+                {totalCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartCount}
+                    {totalCount}
                   </span>
                 )}
               </button>
@@ -148,16 +148,14 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
               {showPreview && cartItems && cartItems.length > 0 && (
                 <div className="hidden sm:block absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-50">
                   <div className="absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45" />
-
                   <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
                     <span className="text-sm font-semibold text-gray-800">
                       {t('cart')} · {totalCount}{t('soldPcs')}
                     </span>
-                    <button onClick={onCartClick} className="text-xs text-blue-500 hover:text-blue-700">
+                    <button onClick={() => setCartOpen(true)} className="text-xs text-blue-500 hover:text-blue-700">
                       {t('viewAll')}
                     </button>
                   </div>
-
                   <div className="max-h-64 overflow-y-auto px-4 py-2 space-y-3">
                     {cartItems.slice(0, 3).map((item) => (
                       <div key={item.product.id} className="flex gap-3 items-center">
@@ -166,9 +164,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
                           <p className="text-sm text-gray-800 truncate">{item.product.name}</p>
                           <p className="text-xs text-gray-500">¥{item.product.price} × {item.quantity}</p>
                         </div>
-                        <p className="text-sm font-semibold text-gray-900 flex-shrink-0">
-                          ¥{item.product.price * item.quantity}
-                        </p>
+                        <p className="text-sm font-semibold text-gray-900 flex-shrink-0">¥{item.product.price * item.quantity}</p>
                       </div>
                     ))}
                     {cartItems.length > 3 && (
@@ -177,7 +173,6 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
                       </p>
                     )}
                   </div>
-
                   <div className="px-4 py-3 border-t border-gray-100 flex justify-between items-center bg-gray-50 rounded-b-lg">
                     <span className="text-sm font-semibold text-gray-800">{t('total')}</span>
                     <span className="text-lg font-bold text-red-500">¥{totalPrice}</span>
@@ -208,24 +203,24 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
         {/* 移动端下拉菜单 */}
         {mobileMenuOpen && (
           <nav className="md:hidden border-t border-gray-200 py-3 space-y-2">
-            <button onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'home' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
+            <Link to="/" onClick={closeMobileMenu} className="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors">
               {t('home')}
-            </button>
-            <button onClick={() => { onNavigate('products'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'products' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
+            </Link>
+            <Link to="/products" onClick={closeMobileMenu} className="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors">
               {t('allProducts')}
-            </button>
-            <button onClick={() => { onNavigate('about'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'about' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
+            </Link>
+            <Link to="/about" onClick={closeMobileMenu} className="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors">
               {t('aboutUs')}
-            </button>
+            </Link>
             {user && (
-              <button onClick={() => { onNavigate('orders'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'orders' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
+              <Link to="/orders" onClick={closeMobileMenu} className="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors">
                 {t('myOrders')}
-              </button>
+              </Link>
             )}
             {isAdmin && (
-              <button onClick={() => { onNavigate('admin'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'admin' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
+              <Link to="/admin" onClick={closeMobileMenu} className="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors">
                 {lang === 'en' ? 'Admin Panel' : '管理后台'}
-              </button>
+              </Link>
             )}
           </nav>
         )}
