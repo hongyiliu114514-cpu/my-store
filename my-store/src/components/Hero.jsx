@@ -1,17 +1,19 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import ProductDetail from './ProductDetail';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const slides = [
   {
     type: 'brand',
     image: 'https://placehold.co/1920x1080/1e293b/f8fafc?text=New+Collection',
-    title: '新品上市',
-    subtitle: '探索我们的独家系列',
+    titleKey: 'newArrival',
+    subtitleKey: 'exploreCollection',
     product: null,
   },
 ];
 
 function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
+  const { t } = useLanguage();
   const [current, setCurrent] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const [detailProduct, setDetailProduct] = useState(null);
@@ -113,16 +115,16 @@ function Hero({ onScrollToProducts, featuredProducts, onAddToCart }) {
         <div className="absolute inset-0 z-20 flex items-center pointer-events-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 tracking-tight">
-              {slide.title}
+              {slide.titleKey ? t(slide.titleKey) : slide.title}
             </h1>
             <p className="text-sm sm:text-base lg:text-xl text-gray-200 mb-6 sm:mb-8 max-w-lg">
-              {slide.subtitle}
+              {slide.subtitleKey ? t(slide.subtitleKey) : slide.subtitle}
             </p>
             <button
               onClick={onScrollToProducts}
               className="pointer-events-auto bg-blue-600 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-md text-sm sm:text-base font-semibold hover:bg-blue-700 transition-colors shadow-lg"
             >
-              立即购买
+              {t('addToCart')}
             </button>
           </div>
         </div>

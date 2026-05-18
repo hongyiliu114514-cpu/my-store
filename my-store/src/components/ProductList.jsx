@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef, memo } from 'react';
 import ProductDetail from './ProductDetail';
 import StarRating from './StarRating';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // AOS (Animate on Scroll) Hook
 function useAOS() {
@@ -39,6 +40,7 @@ function getRating(productId) {
 }
 
 const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistItems, onToggleWishlist, index }) {
+  const { t, lang } = useLanguage();
   const [aosRef, aosVisible] = useAOS();
   const cardRef = useRef(null);
   const isLiked = wishlistItems.some((item) => item.id === product.id);
@@ -100,12 +102,12 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistIt
         {/* 星级评价 */}
         <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
           <StarRating rating={rating} />
-          <span className="text-[10px] sm:text-xs text-gray-400">({count}条评价)</span>
+          <span className="text-[10px] sm:text-xs text-gray-400">({count}{t('reviews')})</span>
         </div>
 
         <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
           <span className="text-[10px] sm:text-xs text-gray-400">
-            已售{product.sales >= 100 ? '99+' : product.sales}件
+            {t('sold')}{product.sales >= 100 ? '99+' : product.sales}{t('soldPcs')}
           </span>
           <span className="text-base sm:text-lg font-bold text-gray-900">
             ¥{product.price}
@@ -115,7 +117,7 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistIt
           onClick={handleAddToCart}
           className="w-full bg-blue-600 text-white py-1.5 sm:py-2 rounded-md text-sm sm:text-base font-medium hover:bg-blue-700 transition-colors active:scale-95"
         >
-          加入购物车
+          {t('addToCart')}
         </button>
       </div>
     </div>
@@ -123,7 +125,8 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart, wishlistIt
 });
 
 function ProductList({ products, onAddToCart, sectionRef, wishlistItems, onToggleWishlist }) {
-  const [selectedCategory, setSelectedCategory] = useState('全部');
+  const { t, lang } = useLanguage();
+  const [selectedCategory, setSelectedCategory] = useState('__all__');
   const [detailProduct, setDetailProduct] = useState(null);
 
   // 监听自定义事件打开详情
@@ -133,20 +136,32 @@ function ProductList({ products, onAddToCart, sectionRef, wishlistItems, onToggl
     return () => window.removeEventListener('openDetail', handler);
   }, []);
 
+  // 分类名映射
+  const categoryKeyMap = useMemo(() => ({
+    '包袋': 'categoryBags',
+    '配饰': 'categoryAccessories',
+    '服饰': 'categoryClothing',
+  }), []);
+
+  const getCategoryLabel = (cat) => {
+    const key = categoryKeyMap[cat];
+    return key ? t(key) : cat;
+  };
+
   const categories = useMemo(() => {
     const cats = products.map((p) => p.category).filter(Boolean);
-    return ['全部', ...Array.from(new Set(cats))];
+    return ['__all__', ...Array.from(new Set(cats))];
   }, [products]);
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategory === '全部') return products;
+    if (selectedCategory === '__all__') return products;
     return products.filter((p) => p.category === selectedCategory);
   }, [products, selectedCategory]);
 
   return (
     <section ref={sectionRef} className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-16 flex-1">
       <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-8 sm:mb-12">
-        热门商品
+        {t('hotProducts')}
       </h2>
 
       <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10">
@@ -160,7 +175,7 @@ function ProductList({ products, onAddToCart, sectionRef, wishlistItems, onToggl
                 : 'bg-gray-200 text-gray-600 px-3 sm:px-5 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium hover:bg-gray-300 transition-colors'
             }
           >
-            {cat}
+            {cat === '__all__' ? t('all') : getCategoryLabel(cat)}
           </button>
         ))}
       </div>

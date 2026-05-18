@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const STORAGE_KEY = 'myStoreAnnouncementDismissed';
 
 function AnnouncementModal({ version, content }) {
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [dontRemind, setDontRemind] = useState(false);
   const versionRef = useRef(version);
@@ -59,7 +61,7 @@ function AnnouncementModal({ version, content }) {
         {/* 顶部白色品牌条 */}
         <div className="bg-white px-6 pt-6 pb-4 text-center">
           <h2 className="text-2xl font-bold tracking-wider text-gray-900">
-            MYSTORE
+            {t('brand')}
           </h2>
           <div className="mt-3 border-b border-gray-200" />
         </div>
@@ -77,7 +79,7 @@ function AnnouncementModal({ version, content }) {
             </ul>
           ) : (
             <p className="text-gray-400 text-sm text-center py-4">
-              暂无公告
+              {t('noData')}
             </p>
           )}
         </div>
@@ -91,13 +93,13 @@ function AnnouncementModal({ version, content }) {
               onChange={(e) => setDontRemind(e.target.checked)}
               className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-400 cursor-pointer"
             />
-            <span className="text-xs text-gray-400">不再提醒</span>
+            <span className="text-xs text-gray-400">{t('cancel')}</span>
           </label>
           <button
             onClick={handleClose}
             className="px-5 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
           >
-            知道了
+            {t('confirm')}
           </button>
         </div>
       </div>

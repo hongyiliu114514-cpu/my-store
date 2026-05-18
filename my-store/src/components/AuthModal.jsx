@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -16,23 +19,23 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
 
     // 注册时检查密码长度
     if (!isLogin && password.length < 6) {
-      setError('密码长度不能少于 6 位');
+      setError(t('passwordTooShort'));
       return;
     }
 
     try {
       if (isLogin) {
-        await signIn(email, password);
+        await signIn(email, password, rememberMe);
         onClose();
       } else {
         const data = await signUp(email, password);
         // Supabase 注册成功后会发送确认邮件
         if (data?.user) {
-          setSuccessMsg('注册成功！请前往邮箱查看确认邮件，点击链接激活账号后再登录。');
+          setSuccessMsg(t('registerSuccess'));
         }
       }
     } catch (err) {
-      setError(err.message || '认证失败，请重试');
+      setError(err.message || t('authFailed'));
     }
   };
 
@@ -62,13 +65,13 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
           &times;
         </button>
         <h2 className="mb-4 sm:mb-6 text-center text-xl sm:text-2xl font-bold text-gray-800">
-          {isLogin ? '登录' : '注册'}
+          {isLogin ? t('loginTitle') : t('registerTitle')}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-600">
-              邮箱
+              {t('email')}
             </label>
             <input
               type="email"
@@ -76,13 +79,13 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-800 placeholder-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="请输入邮箱"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-600">
-              密码
+              {t('password')}
             </label>
             <input
               type="password"
@@ -90,9 +93,22 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-800 placeholder-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="请输入密码"
+              placeholder={t('passwordPlaceholder')}
             />
           </div>
+
+          {/* 记住我 */}
+          {isLogin && (
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-600">{t('rememberMe')}</span>
+            </label>
+          )}
 
           {error && (
             <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
@@ -110,18 +126,18 @@ export default function AuthModal({ isOpen, onClose, signIn, signUp }) {
             type="submit"
             className="w-full rounded-lg bg-blue-600 py-2.5 font-semibold text-white transition hover:bg-blue-700 active:bg-blue-800"
           >
-            {isLogin ? '登录' : '注册'}
+            {isLogin ? t('loginTitle') : t('registerTitle')}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-500">
-          {isLogin ? '没有账号？' : '已有账号？'}
+          {isLogin ? t('noAccount') : t('hasAccount')}
           <button
             type="button"
             onClick={toggleMode}
             className="ml-1 font-medium text-blue-600 hover:text-blue-700"
           >
-            {isLogin ? '去注册' : '去登录'}
+            {isLogin ? t('goRegister') : t('goLogin')}
           </button>
         </p>
       </div>

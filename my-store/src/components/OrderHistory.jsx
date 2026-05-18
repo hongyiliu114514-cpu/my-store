@@ -1,11 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import supabase from '../supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function OrderCard({ order, isExpanded, onToggle }) {
+  const { t } = useLanguage();
   const [items, setItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
   const [itemsError, setItemsError] = useState('');
   const hasLoadedRef = useRef(false);
+
+  // 每次收起时重置加载标记，确保下次展开能重新拉取
+  useEffect(() => {
+    if (!isExpanded) {
+      hasLoadedRef.current = false;
+    }
+  }, [isExpanded]);
 
   useEffect(() => {
     if (!isExpanded || hasLoadedRef.current) return;
@@ -15,7 +24,7 @@ function OrderCard({ order, isExpanded, onToggle }) {
       setItemsError('');
       try {
         if (!supabase) {
-          setItemsError('数据库未配置');
+          setItemsError(t('dbNotConfigured'));
           return;
         }
         const { data, error } = await supabase
@@ -28,7 +37,7 @@ function OrderCard({ order, isExpanded, onToggle }) {
         setItems(data || []);
         hasLoadedRef.current = true;
       } catch (err) {
-        setItemsError('加载商品明细失败');
+        setItemsError(t('orderLoadFailed'));
         console.error('加载订单商品失败:', err);
       } finally {
         setLoadingItems(false);
@@ -39,11 +48,25 @@ function OrderCard({ order, isExpanded, onToggle }) {
   }, [isExpanded, order.id]);
 
   const statusColors = {
-    '待处理': 'bg-yellow-100 text-yellow-800',
-    '处理中': 'bg-blue-100 text-blue-800',
-    '已发货': 'bg-purple-100 text-purple-800',
-    '已完成': 'bg-green-100 text-green-800',
-    '已取消': 'bg-gray-100 text-gray-600',
+    [t('statusPending')]: 'bg-yellow-100 text-yellow-800',
+    [t('statusProcessing')]: 'bg-blue-100 text-blue-800',
+    [t('statusShipped')]: 'bg-purple-100 text-purple-800',
+    [t('statusCompleted')]: 'bg-green-100 text-green-800',
+    [t('statusCancelled')]: 'bg-gray-100 text-gray-600',
+  };
+
+  // 状态映射：数据库中的中文状态 -> 翻译key
+  const statusKeyMap = {
+    '待处理': 'statusPending',
+    '处理中': 'statusProcessing',
+    '已发货': 'statusShipped',
+    '已完成': 'statusCompleted',
+    '已取消': 'statusCancelled',
+  };
+
+  const getStatusLabel = (status) => {
+    const key = statusKeyMap[status];
+    return key ? t(key) : status;
   };
 
   const formatDate = (dateStr) => {
@@ -70,10 +93,10 @@ function OrderCard({ order, isExpanded, onToggle }) {
       >
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="text-xs text-gray-400 font-mono">
-            订单号: {order.id}
+            {t('orderId')}: {order.id}
           </span>
-          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-600'}`}>
-            {order.status}
+          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[getStatusLabel(order.status)] || 'bg-gray-100 text-gray-600'}`}>
+            {getStatusLabel(order.status)}
           </span>
         </div>
 
@@ -95,18 +118,18 @@ function OrderCard({ order, isExpanded, onToggle }) {
 
       {/* 订单基本信息 */}
       <div className="px-4 sm:px-6 pb-3 flex flex-wrap gap-x-6 gap-y-1 text-xs sm:text-sm text-gray-500">
-        <span>收货人: {order.name}</span>
-        <span className="truncate max-w-[200px] sm:max-w-xs">地址: {order.address}</span>
-        <span>下单时间: {formatDate(order.created_at)}</span>
+        <span>{t('receiver')}: {order.name}</span>
+        <span className="truncate max-w-[200px] sm:max-w-xs">{t('address')}: {order.address}</span>
+        <span>{t('orderTime')}: {formatDate(order.created_at)}</span>
       </div>
 
       {/* 展开的商品明细 */}
       {isExpanded && (
         <div className="border-t border-gray-100 px-4 sm:px-6 py-3 bg-gray-50">
-          <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">商品明细</h4>
+          <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">{t('orderItems')}</h4>
 
           {loadingItems && (
-            <p className="text-xs text-gray-400 py-2">加载中...</p>
+            <p className="text-xs text-gray-400 py-2">{t('orderLoadingItems')}</p>
           )}
 
           {itemsError && (
@@ -114,7 +137,7 @@ function OrderCard({ order, isExpanded, onToggle }) {
           )}
 
           {!loadingItems && !itemsError && items.length === 0 && (
-            <p className="text-xs text-gray-400 py-2">暂无商品数据</p>
+            <p className="text-xs text-gray-400 py-2">{t('orderNoItems')}</p>
           )}
 
           {!loadingItems && items.length > 0 && (
@@ -137,7 +160,7 @@ function OrderCard({ order, isExpanded, onToggle }) {
 
           <div className="border-t border-gray-200 mt-3 pt-2 flex justify-end">
             <span className="text-xs sm:text-sm text-gray-500">
-              共 {items.length} 件商品
+              {t('orderItemsCount', { count: items.length })}
             </span>
           </div>
         </div>
@@ -147,6 +170,7 @@ function OrderCard({ order, isExpanded, onToggle }) {
 }
 
 function PageHeader({ onBack }) {
+  const { t } = useLanguage();
   return (
     <div className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center">
@@ -157,15 +181,16 @@ function PageHeader({ onBack }) {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm font-medium">返回</span>
+          <span className="text-sm font-medium">{t('back')}</span>
         </button>
-        <h1 className="ml-4 text-lg sm:text-xl font-bold text-gray-900">我的订单</h1>
+        <h1 className="ml-4 text-lg sm:text-xl font-bold text-gray-900">{t('orderHistoryTitle')}</h1>
       </div>
     </div>
   );
 }
 
 export default function OrderHistory({ user, onBack, onLoginClick }) {
+  const { t } = useLanguage();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -178,7 +203,7 @@ export default function OrderHistory({ user, onBack, onLoginClick }) {
     }
 
     if (!supabase) {
-      setError('数据库未配置');
+      setError(t('dbNotConfigured'));
       setLoading(false);
       return;
     }
@@ -196,7 +221,7 @@ export default function OrderHistory({ user, onBack, onLoginClick }) {
         if (queryError) throw queryError;
         setOrders(data || []);
       } catch (err) {
-        setError('加载失败，请重试');
+        setError(t('orderLoadFailed'));
         console.error('加载订单失败:', err);
       } finally {
         setLoading(false);
@@ -220,7 +245,7 @@ export default function OrderHistory({ user, onBack, onLoginClick }) {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p className="text-gray-500 text-base mb-6">请先登录查看订单</p>
+          <p className="text-gray-500 text-base mb-6">{t('orderLoginPrompt')}</p>
           <button
             onClick={() => onLoginClick?.()}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
@@ -228,7 +253,7 @@ export default function OrderHistory({ user, onBack, onLoginClick }) {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            去登录
+            {t('goLogin')}
           </button>
         </div>
       </div>
@@ -245,7 +270,7 @@ export default function OrderHistory({ user, onBack, onLoginClick }) {
         {loading && (
           <div className="text-center py-16">
             <div className="inline-block w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-            <p className="text-gray-400 text-sm mt-3">加载中...</p>
+            <p className="text-gray-400 text-sm mt-3">{t('loading')}</p>
           </div>
         )}
 
@@ -259,7 +284,7 @@ export default function OrderHistory({ user, onBack, onLoginClick }) {
               onClick={() => window.location.reload()}
               className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
             >
-              重新加载
+              {t('backToHome')}
             </button>
           </div>
         )}
@@ -269,12 +294,12 @@ export default function OrderHistory({ user, onBack, onLoginClick }) {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
-            <p className="text-gray-400 text-base">暂无订单记录</p>
+            <p className="text-gray-400 text-base">{t('noOrders')}</p>
             <button
               onClick={onBack}
               className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
             >
-              去逛逛
+              {t('continueShopping')}
             </button>
           </div>
         )}

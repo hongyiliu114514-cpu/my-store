@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onChangeQuantity, onSetQuantity, onRemoveItem, onClear, onCheckout }) {
+  const { t } = useLanguage();
   return (
     <>
       {/* 遮罩 */}
@@ -20,7 +21,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
         {/* 头部 */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800">
-            购物车 ({totalCount})
+            {t('cartTitle')} ({totalCount})
           </h2>
           <button
             onClick={onClose}
@@ -33,7 +34,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
         {/* 商品列表 */}
         <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-5 sm:py-4 space-y-3 sm:space-y-4">
           {!cartItems || cartItems.length === 0 ? (
-            <p className="text-gray-400 text-center mt-12">购物车是空的</p>
+            <p className="text-gray-400 text-center mt-12">{t('cartEmpty')}</p>
           ) : (
             cartItems.map((item) => (
               <div
@@ -83,7 +84,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
                     onClick={() => onRemoveItem(item.product.id)}
                     className="text-xs text-red-500 hover:text-red-700 mt-1 font-medium"
                   >
-                    删除
+                    {t('remove')}
                   </button>
                 </div>
               </div>
@@ -95,7 +96,7 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
         {cartItems && cartItems.length > 0 && (
           <div className="border-t border-gray-200 px-4 py-3 sm:px-5 sm:py-4 space-y-2 sm:space-y-3">
             <div className="flex justify-between text-base font-semibold text-gray-800">
-              <span>合计</span>
+              <span>{t('total')}</span>
               <span>¥{totalPrice}</span>
             </div>
 
@@ -103,14 +104,14 @@ function CartSidebar({ isOpen, onClose, cartItems, totalCount, totalPrice, onCha
               onClick={onCheckout}
               className="w-full bg-blue-600 text-white py-2.5 rounded hover:bg-blue-700 transition-colors text-sm"
             >
-              去结算
+              {t('checkout')}
             </button>
 
             <button
               onClick={onClear}
               className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition-colors text-sm"
             >
-              清空购物车
+              {t('clearCart')}
             </button>
           </div>
         )}

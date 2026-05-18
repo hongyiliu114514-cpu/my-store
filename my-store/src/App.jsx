@@ -15,14 +15,25 @@ import CheckoutPage from './components/CheckoutPage';
 import OrderSuccessPage from './components/OrderSuccessPage';
 import OrderHistory from './components/OrderHistory';
 import AboutPage from './components/AboutPage';
+import AdminPage from './components/AdminPage';
+import LanguageSelector from './components/LanguageSelector';
 import useAuth from './hooks/useAuth';
 import supabase from './supabaseClient';
 import products from './data/products';
 import announcement from './data/announcements';
+import { useLanguage } from './i18n/LanguageContext';
 
 function App() {
   const { user, signOut, signIn, signUp } = useAuth();
+  const { t, lang } = useLanguage();
   const [currentPage, setCurrentPage] = useState('home');
+
+  // 管理员判断（用 useMemo 避免每次渲染重新计算）
+  const adminEmails = useMemo(
+    () => (import.meta.env.VITE_ADMIN_EMAIL || '').split(',').map(e => e.trim()).filter(Boolean),
+    []
+  );
+  const isAdmin = user && adminEmails.includes(user.email);
   const [lastOrderId, setLastOrderId] = useState(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [cartItems, setCartItems] = useState(() => {
@@ -110,11 +121,11 @@ function App() {
       throw new Error('系统未配置数据库连接，下单功能暂不可用');
     }
 
-    // 1. 插入订单
+    // 1. 插入订单（未登录用户 user_id 为 null）
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: user.id,
+        user_id: user?.id ?? null,
         total_price: totalPrice,
         status: '待处理',
         name,
@@ -142,8 +153,10 @@ function App() {
 
     if (itemsError) throw itemsError;
 
-    // 3. 删除该用户的购物车数据库记录
-    await supabase.from('cart_items').delete().eq('user_id', user.id);
+    // 3. 删除该用户的购物车数据库记录（仅登录用户）
+    if (user) {
+      await supabase.from('cart_items').delete().eq('user_id', user.id);
+    }
 
     // 4. 清空前端状态并跳转成功页
     setCartItems([]);
@@ -226,6 +239,15 @@ function App() {
     );
   }
 
+  if (currentPage === 'admin') {
+    return (
+      <AdminPage
+        user={user}
+        onBack={() => setCurrentPage('home')}
+      />
+    );
+  }
+
   // 首页 / 商品页 / 关于页 共享 Navbar + 侧边栏 + 弹窗
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -243,6 +265,7 @@ function App() {
         onLogout={signOut}
         currentPage={currentPage}
         onNavigate={setCurrentPage}
+        isAdmin={isAdmin}
       />
 
       <CartSidebar
@@ -275,6 +298,8 @@ function App() {
         signIn={signIn}
         signUp={signUp}
       />
+
+      <LanguageSelector />
 
       <AnnouncementModal
         version={announcement.version}

@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import StarRating from './StarRating';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function getRating(productId) {
   const ratings = [4.5, 4.0, 5.0, 4.8, 4.2, 4.6];
@@ -11,6 +12,7 @@ function getRating(productId) {
 }
 
 function ProductDetail({ product, onClose, onAddToCart }) {
+  const { t } = useLanguage();
   const imgRef = useRef(null);
   if (!product) return null;
 
@@ -55,7 +57,7 @@ function ProductDetail({ product, onClose, onAddToCart }) {
           {/* 星级评价 */}
           <div className="flex items-center gap-2 mb-2 sm:mb-3">
             <StarRating rating={rating} size="md" />
-            <span className="text-xs sm:text-sm text-gray-400">({count}条评价)</span>
+            <span className="text-xs sm:text-sm text-gray-400">({count}{t('reviews')})</span>
           </div>
 
           <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -67,7 +69,7 @@ function ProductDetail({ product, onClose, onAddToCart }) {
 
           {/* 商品详情列表 */}
           <div className="border-t border-gray-200 pt-6 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-3">商品详情</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">{t('productDetails')}</h3>
             <ul className="space-y-2">
               {product.details?.map((detail, index) => (
                 <li key={index} className="flex items-start gap-2 text-gray-600">
@@ -82,7 +84,7 @@ function ProductDetail({ product, onClose, onAddToCart }) {
             onClick={handleAddToCart}
             className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition-colors active:scale-95"
           >
-            加入购物车
+            {t('addToCart')}
           </button>
         </div>
       </div>

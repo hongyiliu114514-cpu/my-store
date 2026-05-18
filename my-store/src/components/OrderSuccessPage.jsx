@@ -1,4 +1,7 @@
+import { useLanguage } from '../i18n/LanguageContext';
+
 export default function OrderSuccessPage({ orderId, onContinueShopping }) {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 max-w-md w-full text-center">
@@ -21,29 +24,29 @@ export default function OrderSuccessPage({ orderId, onContinueShopping }) {
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-          下单成功！
+          {t('orderSuccess')}
         </h1>
 
         <p className="text-gray-500 mb-2 text-sm sm:text-base">
-          感谢您的购买，订单已提交成功。
+          {t('orderThankYou')}
         </p>
 
         <div className="inline-block bg-gray-50 rounded-lg px-4 py-2 mb-6">
-          <span className="text-xs text-gray-400">订单号</span>
+          <span className="text-xs text-gray-400">{t('orderNumber')}</span>
           <p className="text-lg sm:text-xl font-mono font-bold text-gray-900">
             {orderId}
           </p>
         </div>
 
         <p className="text-xs sm:text-sm text-gray-400 mb-8">
-          我们将尽快为您处理订单，请留意物流信息。
+          {t('orderProcessing')}
         </p>
 
         <button
           onClick={onContinueShopping}
           className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors active:scale-95"
         >
-          继续购物
+          {t('continueShopping')}
         </button>
       </div>
     </div>

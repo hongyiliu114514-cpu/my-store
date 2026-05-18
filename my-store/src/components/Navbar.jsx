@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
-function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartItems, totalCount, totalPrice, cartIconRef, user, onLoginClick, onLogout, currentPage = 'home', onNavigate = () => {} }) {
+function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartItems, totalCount, totalPrice, cartIconRef, user, onLoginClick, onLogout, currentPage = 'home', onNavigate = () => {}, isAdmin = false }) {
+  const { t, lang, setShowSelector } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const previewTimerRef = useRef(null);
@@ -30,23 +32,28 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <button onClick={() => onNavigate('home')} className="text-base sm:text-xl font-bold tracking-wider text-gray-900 hover:text-gray-700 transition-colors">
-            MYSTORE
+            {t('brand')}
           </button>
 
           {/* 中间菜单 - 桌面端 */}
           <nav className="hidden md:flex items-center space-x-8">
             <button onClick={() => onNavigate('home')} className={`font-medium transition-colors ${currentPage === 'home' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
-              首页
+              {t('home')}
             </button>
             <button onClick={() => onNavigate('products')} className={`font-medium transition-colors ${currentPage === 'products' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
-              全部商品
+              {t('allProducts')}
             </button>
             <button onClick={() => onNavigate('about')} className={`font-medium transition-colors ${currentPage === 'about' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
-              关于我们
+              {t('aboutUs')}
             </button>
             {user && (
               <button onClick={() => onNavigate('orders')} className={`font-medium transition-colors ${currentPage === 'orders' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
-                我的订单
+                {t('myOrders')}
+              </button>
+            )}
+            {isAdmin && (
+              <button onClick={() => onNavigate('admin')} className={`font-medium transition-colors ${currentPage === 'admin' ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
+                {lang === 'en' ? 'Admin Panel' : '管理后台'}
               </button>
             )}
           </nav>
@@ -73,7 +80,7 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
                     onClick={onLogout}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg transition-colors"
                   >
-                    退出登录
+                    {t('logout')}
                   </button>
                 </div>
               </div>
@@ -85,9 +92,20 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span className="hidden sm:inline">登录</span>
+                <span className="hidden sm:inline">{t('login')}</span>
               </button>
             )}
+
+            {/* 语言切换 */}
+            <button
+              onClick={() => setShowSelector(true)}
+              className="p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-lg hover:bg-gray-100"
+              title={t('languageSelect')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
+            </button>
 
             {/* 收藏图标 */}
             <button
@@ -133,10 +151,10 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
 
                   <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
                     <span className="text-sm font-semibold text-gray-800">
-                      购物车 · {totalCount}件
+                      {t('cart')} · {totalCount}{t('soldPcs')}
                     </span>
                     <button onClick={onCartClick} className="text-xs text-blue-500 hover:text-blue-700">
-                      查看全部 →
+                      {t('viewAll')}
                     </button>
                   </div>
 
@@ -155,13 +173,13 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
                     ))}
                     {cartItems.length > 3 && (
                       <p className="text-xs text-gray-400 text-center py-1">
-                        还有 {cartItems.length - 3} 件商品...
+                        {t('orderItemsCount', { count: cartItems.length - 3 })}
                       </p>
                     )}
                   </div>
 
                   <div className="px-4 py-3 border-t border-gray-100 flex justify-between items-center bg-gray-50 rounded-b-lg">
-                    <span className="text-sm font-semibold text-gray-800">合计</span>
+                    <span className="text-sm font-semibold text-gray-800">{t('total')}</span>
                     <span className="text-lg font-bold text-red-500">¥{totalPrice}</span>
                   </div>
                 </div>
@@ -191,17 +209,22 @@ function Navbar({ cartCount, wishlistCount, onCartClick, onWishlistClick, cartIt
         {mobileMenuOpen && (
           <nav className="md:hidden border-t border-gray-200 py-3 space-y-2">
             <button onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'home' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
-              首页
+              {t('home')}
             </button>
             <button onClick={() => { onNavigate('products'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'products' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
-              全部商品
+              {t('allProducts')}
             </button>
             <button onClick={() => { onNavigate('about'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'about' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
-              关于我们
+              {t('aboutUs')}
             </button>
             {user && (
               <button onClick={() => { onNavigate('orders'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'orders' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
-                我的订单
+                {t('myOrders')}
+              </button>
+            )}
+            {isAdmin && (
+              <button onClick={() => { onNavigate('admin'); setMobileMenuOpen(false); }} className={`block w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${currentPage === 'admin' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}>
+                {lang === 'en' ? 'Admin Panel' : '管理后台'}
               </button>
             )}
           </nav>

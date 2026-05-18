@@ -1,4 +1,7 @@
+import { useLanguage } from '../i18n/LanguageContext';
+
 function WishlistSidebar({ isOpen, onClose, wishlistItems, onToggleWishlist, onAddToCart }) {
+  const { t } = useLanguage();
   return (
     <>
       {/* 遮罩层 */}
@@ -22,9 +25,9 @@ function WishlistSidebar({ isOpen, onClose, wishlistItems, onToggleWishlist, onA
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
             <h2 className="text-lg font-bold text-gray-900">
-              我的收藏
+              {t('wishlistTitle')}
               {wishlistItems.length > 0 && (
-                <span className="ml-2 text-sm text-gray-500 font-normal">({wishlistItems.length}件)</span>
+                <span className="ml-2 text-sm text-gray-500 font-normal">({wishlistItems.length}{t('soldPcs')})</span>
               )}
             </h2>
           </div>
@@ -45,8 +48,8 @@ function WishlistSidebar({ isOpen, onClose, wishlistItems, onToggleWishlist, onA
               <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
-              <p className="text-sm">还没有收藏商品</p>
-              <p className="text-xs mt-1">点击商品上的爱心即可收藏</p>
+              <p className="text-sm">{t('wishlistEmpty')}</p>
+              <p className="text-xs mt-1">{t('wishlistHint')}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -70,13 +73,13 @@ function WishlistSidebar({ isOpen, onClose, wishlistItems, onToggleWishlist, onA
                         }}
                         className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors"
                       >
-                        加入购物车
+                        {t('addToCart')}
                       </button>
                       <button
                         onClick={() => onToggleWishlist(product)}
                         className="text-xs text-red-500 hover:text-red-600 px-2 py-1.5 transition-colors"
                       >
-                        取消收藏
+                        {t('removeWishlist')}
                       </button>
                     </div>
                   </div>

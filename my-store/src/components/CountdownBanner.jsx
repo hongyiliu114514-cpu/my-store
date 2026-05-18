@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // 倒计时目标：距离今天 +3 天 00:00:00
 function getTargetDate() {
@@ -10,6 +11,7 @@ function getTargetDate() {
 }
 
 function CountdownBanner() {
+  const { t } = useLanguage();
   const endTimeRef = useRef(getTargetDate().getTime());
   const [timeLeft, setTimeLeft] = useState(() => {
     const diff = endTimeRef.current - Date.now();
@@ -39,14 +41,14 @@ function CountdownBanner() {
       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-pulse shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      <span className="font-bold text-[10px] sm:text-xs leading-tight text-center">限时折扣</span>
+      <span className="font-bold text-[10px] sm:text-xs leading-tight text-center">{t('flashSale')}</span>
 
       {/* 倒计时数字 */}
       <div className="flex items-center gap-0.5">
         {days > 0 && (
           <>
             <span className="bg-white/20 rounded px-0.5 sm:px-1 py-0.5 font-mono font-bold text-xs sm:text-sm">{pad(days)}</span>
-            <span className="text-[9px] sm:text-[10px]">天</span>
+            <span className="text-[9px] sm:text-[10px]">{t('days')}</span>
           </>
         )}
         <span className="bg-white/20 rounded px-0.5 sm:px-1 py-0.5 font-mono font-bold text-xs sm:text-sm">{pad(hours)}</span>
@@ -58,7 +60,7 @@ function CountdownBanner() {
 
       {/* 折扣标签 */}
       <span className="text-[9px] sm:text-[10px] lg:text-xs bg-white/20 rounded-full px-1.5 sm:px-2 py-0.5 font-semibold animate-pulse">
-        🔥 全场低至5折
+        {t('upTo50off')}
       </span>
     </div>
   );
