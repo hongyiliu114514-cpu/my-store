@@ -204,7 +204,25 @@ function App() {
     productsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // 使用 useMemo 稳定 Provider value，避免每次渲染创建新对象导致消费者不必要的重渲染
+  const contextValue = useMemo(() => ({
+    user, isAdmin, cartItems, totalCount, totalPrice,
+    wishlistItems, cartIconRef, productsSectionRef, lastOrderId,
+    addToCart, toggleWishlist, removeFromCart, clearCart,
+    changeQuantity, setItemQuantity, signOut, signIn, signUp,
+    handleCheckout, setCartOpen, setWishlistOpen, setAuthModalOpen,
+    scrollToProducts,
+  }), [
+    user, isAdmin, cartItems, totalCount, totalPrice,
+    wishlistItems, lastOrderId,
+    addToCart, toggleWishlist, removeFromCart, clearCart,
+    changeQuantity, setItemQuantity, signOut, signIn, signUp,
+    handleCheckout, setCartOpen, setWishlistOpen, setAuthModalOpen,
+    scrollToProducts,
+  ]);
+
   return (
+    <AppContext.Provider value={contextValue}>
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
@@ -334,6 +352,7 @@ function App() {
         <FlyingItem key={item.id} {...item} />
       ))}
     </div>
+    </AppContext.Provider>
   );
 }
 
